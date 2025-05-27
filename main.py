@@ -135,7 +135,6 @@ async def show_subscription_plans(message):
         "🌟 Premium Plans:\n"
         "- Monthly: Unlimited uploads, priority support\n"
         "- Yearly: Unlimited uploads, priority support, exclusive features\n\n"
-        "Visit https://x.ai/grok for subscription details.\n\n"
         "Alternatively, get 1 week of premium access by paying Telegram Premium to the admin."
     )
     await message.reply_text(
