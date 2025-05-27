@@ -1,3 +1,4 @@
+
 import os, logging, asyncio, uuid, re
 from pyrogram import Client, filters, idle
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -211,6 +212,7 @@ async def start_command(client, message):
     """Handle /start command."""
     user_id = message.from_user.id
     
+    # Check if user is authorized
     if not await is_authorized_user(user_id):
         await message.reply_text(
             f"Please subscribe to {UPDATES_CHANNEL} to use this bot.",
@@ -221,6 +223,20 @@ async def start_command(client, message):
             protect_content=True
         )
         return
+
+    # Check if user exists in the database
+    user = users_collection.find_one({"user_id": user_id})
+    is_new_user = user is None
+
+    # Add user to database if they don't exist
+    if is_new_user:
+        users_collection.insert_one({
+            "user_id": user_id,
+            "username": message.from_user.username,
+            "joined_at": datetime.utcnow(),
+            "is_premium": getattr(message.from_user, "is_premium", False),
+            "warnings": 0
+        })
 
     # Handle file retrieval
     if len(message.command) > 1:
@@ -274,17 +290,24 @@ async def start_command(client, message):
                 protect_content=True
             )
     else:
-        # Only send welcome message for /start command
-        welcome_text = (
-            "Welcome to the File Store Bot! 📁\n"
-            "Upload files to get shareable links.\n"
-            "Use /help for more information."
-        )
-        await message.reply_text(
-            welcome_text,
-            disable_web_page_preview=True,
-            protect_content=True
-        )
+        # Send welcome message only for new users
+        if is_new_user:
+            welcome_text = (
+                "Welcome to the File Store Bot! 📁\n"
+                "Upload files to get shareable links.\n"
+                "Use /help for more information."
+            )
+            await message.reply_text(
+                welcome_text,
+                disable_web_page_preview=True,
+                protect_content=True
+            )
+        else:
+            await message.reply_text(
+                "Welcome back! Upload a file to get a shareable link or use /help for more information.",
+                disable_web_page_preview=True,
+                protect_content=True
+            )
 
 @app.on_message(filters.command("help") & filters.private)
 async def help_command(client, message):
@@ -469,16 +492,6 @@ async def handle_media(client, message):
             "created_at": datetime.utcnow(),
             "secure_token": generate_secure_token(user_id, file_id)
         })
-
-        # Add user to database if not exists
-        if not users_collection.find_one({"user_id": user_id}):
-            users_collection.insert_one({
-                "user_id": user_id,
-                "username": message.from_user.username,
-                "joined_at": datetime.utcnow(),
-                "is_premium": is_premium,
-                "warnings": 0
-            })
 
         # Send shareable link to user
         reply = await message.reply_text(
