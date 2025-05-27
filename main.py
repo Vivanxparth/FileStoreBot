@@ -1,3 +1,4 @@
+
 import os, logging, asyncio, uuid, re
 from pyrogram import Client, filters, idle
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -109,7 +110,7 @@ async def start_command(client, message):
     else:
         if not await check_subscription(client, user_id):
             await message.reply_text(
-                f"Please subscribe to {UPDATES_CHANNEL} to view files.",
+                f"Please subscribe to {UPDATES_CHANNEL} to use this bot and view files.",
                 reply_markup=InlineKeyboardMarkup([[
                     InlineKeyboardButton("Join Channel", url=f"https://t.me/{UPDATES_CHANNEL.lstrip('@')}")
                 ]]),
@@ -166,7 +167,7 @@ async def start_command(client, message):
                 )
     elif not await is_admin(user_id):
         await message.reply_text(
-            "🚫 Access Denied: Only admins can use this bot. Use a valid file link to view content after joining the channel.",
+            "Please use a valid file link to view content after joining the channel. Use /help for more information.",
             disable_web_page_preview=True
         )
 
@@ -174,20 +175,22 @@ async def start_command(client, message):
 async def help_command(client, message):
     """Handle /help command."""
     user_id = message.from_user.id
-    if not await is_admin(user_id):
-        await message.reply_text(
-            "🚫 Access Denied: This bot is for admin use only. Non-admins can only view files using links after joining the channel.",
-            disable_web_page_preview=True
+    if await is_admin(user_id):
+        help_text = (
+            "Available commands (Admin Only):\n"
+            "/start - Start the bot\n"
+            "/help - Show this help message\n"
+            "/batch - Generate a link for multiple files\n"
+            "/broadcast - Broadcast a message to all users\n"
+            "/stats - Show bot statistics\n"
         )
-        return
-    help_text = (
-        "Available commands (Admin Only):\n"
-        "/start - Start the bot\n"
-        "/help - Show this help message\n"
-        "/batch - Generate a link for multiple files\n"
-        "/broadcast - Broadcast a message to all users\n"
-        "/stats - Show bot statistics\n"
-    )
+    else:
+        help_text = (
+            "Available commands (Non-Admins):\n"
+            "/start - Start the bot and view files using valid links (requires joining the channel)\n"
+            "/help - Show this help message\n\n"
+            "Note: Only admins can upload files and use other features. Contact an admin for assistance."
+        )
     await message.reply_text(help_text, disable_web_page_preview=True)
 
 @app.on_message(filters.command("batch") & filters.private)
@@ -196,7 +199,7 @@ async def batch_command(client, message):
     user_id = message.from_user.id
     if not await is_admin(user_id):
         await message.reply_text(
-            "🚫 Access Denied: This bot is for admin use only. Non-admins can only view files using links after joining the channel.",
+            "🚫 Access Denied: Only admins can use this command. Use /start with a valid file link or /help for more information.",
             disable_web_page_preview=True
         )
         return
@@ -237,7 +240,7 @@ async def handle_text(client, message):
     user_id = message.from_user.id
     if not await is_admin(user_id):
         await message.reply_text(
-            "🚫 Access Denied: This bot is for admin use only. Non-admins can only view files using links after joining the channel.",
+            "🚫 Access Denied: Only admins can use this bot for sending messages. Use /start with a valid file link or /help for more information.",
             disable_web_page_preview=True
         )
         return
@@ -266,7 +269,7 @@ async def handle_media(client, message):
     user_id = message.from_user.id
     if not await is_admin(user_id):
         await message.reply_text(
-            "🚫 Access Denied: This bot is for admin use only. Non-admins can only view files using links after joining the channel.",
+            "🚫 Access Denied: Only admins can upload files. Use /start with a valid file link or /help for more information.",
             disable_web_page_preview=True
         )
         return
