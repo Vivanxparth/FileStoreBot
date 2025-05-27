@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 API_ID = os.getenv("API_ID", "16015294")  # Get from my.telegram.org
 API_HASH = os.getenv("API_HASH", "e4fc842483c5de0f920ebba329c1a906")  # Get from my.telegram.org
 BOT_TOKEN = os.getenv("BOT_TOKEN", "7319887951:AAGp99yde9xHk3_YyymbzJJReINKT--bh3M")  # Get from @BotFather
-DB_CHANNEL = int(os.getenv("DB_CHANNEL", "-1002649940692"))  # Private channel ID for storing files
+DB_CHANNEL = int(os.getenv("DB_CHANNEL", "-1002281382661"))  # Private channel ID for storing files
 UPDATES_CHANNEL = os.getenv("UPDATES_CHANNEL", "YoursUpdateHere")  # Public channel username for force sub
 ADMIN_IDS = [int(x) for x in os.getenv("ADMIN_IDS", "7499642616").split()]  # List of admin user IDs
 DATABASE_URL = os.getenv("DATABASE_URL", "mongodb+srv://karan69:karan69@cluster0.gfw7e.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")  # MongoDB URI
