@@ -1,6 +1,5 @@
 import os, logging, asyncio, uuid, re
 from pyrogram import Client, filters, idle
-from pyrogram.enums import ParseMode
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from pyrogram.errors import FloodWait, UserNotParticipant
 from pymongo import MongoClient
@@ -32,15 +31,14 @@ users_collection = db["users"]
 trials_collection = db["trials"]
 subscriptions_collection = db["subscriptions"]
 
-# Initialize Pyrogram client with enhanced security
+# Initialize Pyrogram client without parse_mode to avoid HTML parsing error
 app = Client(
     name="FileStoreBot",
     api_id=API_ID,
     api_hash=API_HASH,
     bot_token=BOT_TOKEN,
     workers=WORKERS,
-    sleep_threshold=SLEEP_THRESHOLD,
-    parse_mode="html"
+    sleep_threshold=SLEEP_THRESHOLD
 )
 
 # Enhanced content filter
